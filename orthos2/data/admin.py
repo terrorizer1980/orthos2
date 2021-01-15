@@ -41,7 +41,7 @@ class SerialConsoleInline(admin.StackedInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Do only show management BMC belonging to the machine itself."""
         if self.machine and db_field.name == 'management_bmc':
-            kwargs['queryset'] = self.machine.enclosure.get_bmc_list()
+            kwargs['queryset'] = self.machine.get_bmcs()
         return super(SerialConsoleInline, self).formfield_for_foreignkey(
             db_field,
             request,
@@ -64,7 +64,7 @@ class RemotePowerInline(admin.StackedInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Do only show management BMC belonging to the machine itself."""
         if self.machine and db_field.name == 'management_bmc':
-            kwargs['queryset'] = self.machine.enclosure.get_bmc_list()
+            kwargs['queryset'] = self.machine.get_bmcs()
         return super(RemotePowerInline, self).formfield_for_foreignkey(
             db_field,
             request,

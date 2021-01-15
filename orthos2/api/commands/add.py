@@ -24,8 +24,9 @@ class Add:
     SERIALCONSOLE = 'serialconsole'
     ANNOTATION = 'annotation'
     REMOTEPOWER = 'remotepower'
+    BMC = 'bmc'
 
-    as_list = [MACHINE, VIRTUALMACHINE, SERIALCONSOLE, ANNOTATION, REMOTEPOWER]
+    as_list = [MACHINE, VIRTUALMACHINE, SERIALCONSOLE, ANNOTATION, REMOTEPOWER, BMC]
 
 
 class AddCommand(BaseAPIView):
@@ -113,7 +114,8 @@ Example:
                 return ErrorMessage("Invalid number of arguments for 'remotepower'!").as_json
 
             return redirect('{}?fqdn={}'.format(reverse('api:remotepower_add'), sub_arguments[0]))
-
+        elif item == Add.BMC:
+            return redirect('{}?fqdn={}'.format(reverse('api:bmc_add'), sub_arguments[0]))
         return ErrorMessage("Unknown item '{}'!".format(item)).as_json
 
 
@@ -489,6 +491,92 @@ class AddRemotePowerCommand(BaseAPIView):
 
         if machine.has_remotepower():
             return InfoMessage("Machine has already a remote power.").as_json
+
+        form = RemotePowerAPIForm(machine=machine)
+
+        input = InputSerializer(
+            form.as_dict(),
+            self.URL_POST.format(fqdn=machine.fqdn),
+            form.get_order()
+        )
+        return input.as_json
+
+    def post(self, request, fqdn, *args, **kwargs):
+        """Add remote power to machine."""
+        if not request.user.is_superuser:
+            return ErrorMessage("Only superusers are allowed to perform this action!").as_json
+
+        try:
+            result = get_machine(
+                fqdn,
+                redirect_to='api:remotepower_add',
+                data=request.GET
+            )
+            if isinstance(result, Serializer):
+                return result.as_json
+            elif isinstance(result, HttpResponseRedirect):
+                return result
+            machine = result
+        except Exception as e:
+            return ErrorMessage(str(e)).as_json
+
+        if machine.has_remotepower():
+            return InfoMessage("Machine has already a remote power.").as_json
+
+        data = json.loads(request.body.decode('utf-8'))['form']
+        form = RemotePowerAPIForm(data, machine=machine)
+
+        if form.is_valid():
+            try:
+                remotepower = RemotePower(**form.cleaned_data)
+                remotepower.save()
+            except Exception as e:
+                logger.exception(e)
+                return ErrorMessage("Something went wrong!").as_json
+
+            return Message('Ok.').as_json
+
+        return ErrorMessage("\n{}".format(format_cli_form_errors(form))).as_json
+
+
+
+class AddBMCCommand(BaseAPIView):
+
+    URL_POST = '/bmc/{fqdn}/add'
+
+    @staticmethod
+    def get_urls():
+        return [
+            re_path(r'^bmc/add', AddBMCCommand.as_view(), name='bmc_add'),
+            re_path(
+                r'^bmc/(?P<fqdn>[a-z0-9\.-]+)/add$',
+                AddBMCCommand.as_view(),
+                name='bmc_add'
+            ),
+        ]
+
+    def get(self, request, *args, **kwargs):
+        """Return form for adding a BMC."""
+        fqdn = request.GET.get('fqdn', None)
+        try:
+            result = get_machine(
+                fqdn,
+                redirect_to='api:bmc_add',
+                data=request.GET
+            )
+            if isinstance(result, Serializer):
+                return result.as_json
+            elif isinstance(result, HttpResponseRedirect):
+                return result
+            machine = result
+        except Exception as e:
+            return ErrorMessage(str(e)).as_json
+
+        if isinstance(request.user, AnonymousUser) or not request.auth:
+            return AuthRequiredSerializer().as_json
+
+        if not request.user.is_superuser:
+            return ErrorMessage("Only superusers are allowed to perform this action!").as_json
 
         form = RemotePowerAPIForm(machine=machine)
 

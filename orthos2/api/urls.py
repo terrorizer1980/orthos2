@@ -29,3 +29,4 @@ urlpatterns += DeleteCommand.get_urls()                 # noqa: F405
 urlpatterns += DeleteMachineCommand.get_urls()          # noqa: F405
 urlpatterns += DeleteSerialConsoleCommand.get_urls()    # noqa: F405
 urlpatterns += DeleteRemotePowerCommand.get_urls()      # noqa: F405
+urlpatterns += AddBMCCommand.get_urls()             # noqa: F405

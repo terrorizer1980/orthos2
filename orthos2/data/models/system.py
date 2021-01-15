@@ -24,13 +24,7 @@ class System(models.Model):
                 'pk',
                 -1
             )
-            cls.BMC = safe_get_or_default(
-                System,
-                'name',
-                'BMC',
-                'pk',
-                -1
-            )
+            
 
     name = models.CharField(
         max_length=200,

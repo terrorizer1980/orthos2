@@ -612,10 +612,6 @@ class Machine(models.Model):
         """Return `True` if machine is a virtual machine (system), `False` otherwise."""
         return self.system.virtual
 
-    def is_bmc(self):
-        """Return `True` if machine is BMC, `False` otherwise."""
-        return self.system_id == System.Type.BMC
-
     def get_cobbler_domains(self):
         if not self.is_cobbler_server():
             return None
@@ -705,15 +701,19 @@ class Machine(models.Model):
     def get_primary_bmc(self):
         """
         Return primary BMC for machine (simply the first), `None` if no BMC exists.
-
-        Only non BMC sytems can have a primary BMC.
         """
-        if self.system_id != System.Type.BMC:
-            bmc_list = self.enclosure.get_bmc_list()
-            if bmc_list:
-                return bmc_list.first()
+        
+        if hasattr(self, 'bmc_set') and self.bmc_set:
+            return self.bmc_set.first()
         return None
 
+    def get_bmcs(self):
+        """
+        Return all BMCs for machine, `None` if no BMC exists.
+        """
+        if hasattr(self, 'bmc_set') and self.bmc_set:
+            return self.bmc_set.all()
+        return None
     @property
     def bmc(self):
         return self.get_primary_bmc()

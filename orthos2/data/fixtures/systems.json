@@ -108,15 +108,5 @@
       "administrative": true,
       "created": "2016-01-01T10:00:00+00:00"
     }
-  },
-  {
-    "model": "data.system",
-    "pk": null,
-    "fields": {
-      "name": "BMC",
-      "virtual": false,
-      "administrative": true,
-      "created": "2016-01-01T10:00:00+00:00"
-    }
   }
 ]

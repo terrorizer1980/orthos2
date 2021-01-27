@@ -118,7 +118,7 @@ class RemotePower(models.Model):
     )
 
     management_bmc = models.ForeignKey(
-        'data.Machine',
+        'data.BMC',
         verbose_name='Management BMC',
         related_name='managed_remotepower',
         blank=True,

@@ -38,7 +38,9 @@ class NetworkInterface(models.Model):
         'data.Machine',
         related_name='networkinterfaces',
         editable=False,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
 
     primary = models.BooleanField(

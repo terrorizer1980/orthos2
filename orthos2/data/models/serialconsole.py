@@ -47,7 +47,7 @@ class SerialConsole(models.Model):
     )
 
     management_bmc = models.ForeignKey(
-        'data.Machine',
+        'data.BMC',
         verbose_name='Management BMC',
         related_name='managed_serialconsole',
         blank=True,

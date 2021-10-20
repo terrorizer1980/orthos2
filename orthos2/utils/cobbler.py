@@ -1,8 +1,6 @@
 import logging
 
 from orthos2.data.models import Machine, ServerConfig
-from orthos2.data.models.serverconfig import SSHManager
-from django.template import Context, Template
 from orthos2.utils.ssh import SSH
 from orthos2.utils.misc import get_hostname, get_ip
 from orthos2.utils.remotepowertype import RemotePowerType
@@ -136,14 +134,13 @@ def get_filename(machine):
 
     Machine > Group > Architecture > None
     """
-    context = Context({'machine': machine})
 
     if machine.dhcp_filename:
         filename = machine.dhcp_filename
     elif machine.group and machine.group.dhcp_filename:
-        filename = Template(machine.group.dhcp_filename).render(context)
+        filename = machine.group.dhcp_filename
     elif machine.architecture.dhcp_filename:
-        filename = Template(machine.architecture.dhcp_filename).render(context)
+        filename = machine.architecture.dhcp_filename
     else:
         filename = None
 

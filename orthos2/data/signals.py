@@ -192,16 +192,13 @@ def regenerate_serialconsole(sender, cscreen_server_fqdn, *args, **kwargs):
 
 
 @receiver(signal_cobbler_regenerate)
-def regenerate_cobbler(sender, domain_id, *args, **kwargs):
+def regenerate_cobbler(sender, domain_id, light_sync=True, *args, **kwargs):
     """
     Create `RegenerateCobbler()` task here.
 
     This should be the one and only place for creating this task.
     """
-    if domain_id is None:
-        task = tasks.RegenerateCobbler()
-    else:
-        task = tasks.RegenerateCobbler(domain_id)
+    task = tasks.RegenerateCobbler(domain_id, light_sync)
 
     TaskManager.add(task)
 

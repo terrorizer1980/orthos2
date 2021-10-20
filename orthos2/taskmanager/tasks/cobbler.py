@@ -16,8 +16,9 @@ class RegenerateCobbler(Task):
     Regenerates the Cobbler configurations for IPv4/IPv6.
     """
 
-    def __init__(self, domain_id=None):
+    def __init__(self, domain_id=None, light_sync=True):
         self._domain_id = domain_id
+        self.light_sync = light_sync
 
     def _get_domains(self):
         """
@@ -59,7 +60,7 @@ class RegenerateCobbler(Task):
                     cobbler_server = CobblerServer(server.fqdn, domain)
                     try:
                         logger.info("* Cobbler deployment started...")
-                        cobbler_server.deploy()
+                        cobbler_server.deploy(self.light_sync)
                         logger.info("* Cobbler deployment finished successfully")
                     except Exception as e:
                         message = "* Cobbler deployment failed; {}".format(e)

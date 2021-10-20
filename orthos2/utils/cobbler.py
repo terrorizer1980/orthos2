@@ -183,7 +183,7 @@ class CobblerServer:
         if self._conn:
             self._conn.close()
 
-    def deploy(self):
+    def deploy(self, light=False):
         self.connect()
         if not self.is_installed():
             raise CobblerException("No Cobbler service found: {}".format(self._fqdn))
@@ -196,7 +196,10 @@ class CobblerServer:
             if machine.fqdn in cobbler_machines:
                 cobbler_commands.append(get_cobbler_update_command(machine, self._cobbler_path))
             else:
-                cobbler_commands.append(get_cobbler_add_command(machine, self._cobbler_path))
+                if light:
+                    continue
+                else:
+                    cobbler_commands.append(get_cobbler_add_command(machine, self._cobbler_path))
             if hasattr(machine, 'bmc') and machine.bmc:
                 cobbler_commands.append(get_bmc_command(machine, self._cobbler_path))
 

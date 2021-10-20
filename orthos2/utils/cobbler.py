@@ -73,8 +73,11 @@ def get_bmc_command(machine, cobbler_path):
     bmc = machine.bmc
     bmc_command = """{cobbler} system edit --name={name} --interface=bmc --interface-type=bmc"""\
         .format(cobbler=cobbler_path, name=machine.fqdn)
+    ipv4, ipv6 = get_ip(bmc.fqdn,10)
     bmc_command += """ --ip-address="{ip}" --mac="{mac}" --dns-name="{dns}" """.format(
-            ip=get_ip(bmc.fqdn)[0], mac=bmc.mac, dns=get_hostname(bmc.fqdn))
+            ip=ipv4[0], mac=bmc.mac, dns=get_hostname(bmc.fqdn))
+    if ipv6:
+        bmc_command += """ --ipv6-address={ipv6} """.format(ipv6=ipv6[0])
     return bmc_command
 
 
